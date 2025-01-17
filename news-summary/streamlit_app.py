@@ -1,16 +1,16 @@
 import streamlit as st
 from langchain.prompts import PromptTemplate
 from langchain.chains.summarize import load_summarize_chain
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import  UnstructuredURLLoader
 from langchain_community.utilities import GoogleSerperAPIWrapper
-
+from langchain_ollama import ChatOllama
 # Streamlit app
 st.subheader('Last Week In...')
 
 # Get OpenAI API key, Serper API key, number of results, and search query
 with st.sidebar:
-    openai_api_key = st.text_input("OpenAI API Key", value="", type="password")
+    # openai_api_key = st.text_input("OpenAI API Key", value="", type="password")
     serper_api_key = st.text_input("Serper API Key", value="", type="password")
     num_results = st.number_input("Number of Search Results", min_value=3, max_value=10)
     st.caption("*Search: Uses Serper API only, retrieves search results.*")
@@ -21,8 +21,9 @@ col1, col2 = st.columns([1,3])
 # If the 'Search' button is clicked
 if col1.button("Search"):
     # Validate inputs
-    if not openai_api_key.strip() or not serper_api_key.strip() or not search_query.strip():
+    if not serper_api_key.strip() or not search_query.strip():
         st.error(f"Please provide the missing fields.")
+
     else:
         try:
             with st.spinner("Please wait..."):
@@ -41,7 +42,7 @@ if col1.button("Search"):
 # If 'Search & Summarize' button is clicked
 if col2.button("Search & Summarize"):
     # Validate inputs
-    if not openai_api_key.strip() or not serper_api_key.strip() or not search_query.strip():
+    if not serper_api_key.strip() or not search_query.strip():
         st.error(f"Please provide the missing fields.")
     else:
         try:
@@ -59,7 +60,10 @@ if col2.button("Search & Summarize"):
                         data = loader.load()
                 
                         # Initialize the ChatOpenAI module, load and run the summarize chain
-                        llm = ChatOpenAI(temperature=0, openai_api_key=openai_api_key)
+                        # llm = ChatOpenAI(temperature=0, openai_api_key=openai_api_key)
+                        
+                        # llm=ChatGroq(model="llama3-70b-8192")
+                        llm = ChatOllama(temperature=0, model="llama3.2")
                         prompt_template = """Write a summary of the following in 100-150 words:
                             
                             {text}
